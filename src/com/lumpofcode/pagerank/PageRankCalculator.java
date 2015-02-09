@@ -3,10 +3,21 @@ package com.lumpofcode.pagerank;
 import java.util.List;
 
 /**
+ *
  * Created by emurphy on 2/8/15.
  */
 public final class PageRankCalculator
 {
+    /**
+     * Calculate the page rank for a given set of pages with a given link structure.
+     *
+     * @param thePageLinks
+     * @param thePageCount
+     * @param beta
+     * @param epsilon
+     * @param theMaxIterations
+     * @return
+     */
     public static double[] calculatePageRank(final PageLinks thePageLinks, final int thePageCount, final double beta, final double epsilon, final int theMaxIterations)
     {
         assert(thePageCount > 0);
@@ -22,14 +33,15 @@ public final class PageRankCalculator
         initializeMatrixFromPageLinks(theMatrix, thePageLinks, dimension, beta);
         printMatrix(theMatrix);
 
-        // initialize the page rank vector (distribute importance evenly among pages
+        // initialize the page rank vector to our first estimate; assume equal importance to all pages
+        // (distribute importance evenly among pages)
         initializePageRankVector(thePageRankVector);
 
         //
         // do a power iteration;
         // 1. calculate a page rank vector estimate
         // 2. calculate the sum of the differences between the page rank vector and new page rank estimate vector
-        // 3. If the difference is greather than epsilon, make the new page rank estimate the page rank, repeat starting at 1..
+        // 3. If the difference is greater than epsilon, make the new page rank estimate the page rank, repeat starting at 1..
         // 4. we have converged on the page rank vector and we are done.
         //
         int theIterations = 0;
@@ -84,20 +96,18 @@ public final class PageRankCalculator
         // e = the unity vector (vector of ones)
         // n = the dimension (the number of pages)
         //
+        // NOTE: we have already pre-applied Beta to each matrix element at initialization, so we don't apply it below.
+        //
         final int n = thePageRankVector.length;
         final double theTaxation = (1.0 - beta)/n;
-        for(int j = 0; j < n; j += 1)
+        for(int j = 0; j < n; j += 1)   // choose the row in the matrix (m) and the estimate vector (v')
         {
             //
-            // multiply each row by beta and the the page rank vector, then add taxation term
+            // multiply each row by the page rank vector and sum them, then add taxation term
             //
             thePageRankEstimate[j] = theTaxation;
-            for(int i = 0; i < n; i += 1)
+            for(int i = 0; i < n; i += 1)   // choose the column in the matrix (m) and row in the page rank vector (v)
             {
-                //
-                // NOTE: it would be a little more efficient to get and hold the column vector
-                //       but I've chosen to use a two dimensional reference to the matrix for clarity.
-                //
                 //
                 // NOTE: beta is already applied to the elements of theMatrix, when it is initialized
                 //
@@ -166,8 +176,9 @@ public final class PageRankCalculator
     }
 
     /**
-     * Calcualte the sum of the absolute value of the element differences for
+     * Calculate the sum of the absolute value of the element differences for
      * two vectors of equal dimension.
+     *
      * @param v1 a vector with 1 or more elements
      * @param v2 a vector with the same number of elements as v1
      * @return the sum of the absolute value of the element differences.
@@ -187,7 +198,12 @@ public final class PageRankCalculator
         return theDifference;
     }
 
-    public static void printMatrix(final double[][] m)
+    /**
+     * Print the matrix to system out.
+     *
+     * @param m
+     */
+    private static void printMatrix(final double[][] m)
     {
         final StringBuilder theBuilder = new StringBuilder();
 
@@ -208,7 +224,12 @@ public final class PageRankCalculator
         System.out.println(theBuilder.toString());
     }
 
-    public static void printPageRankVector(final double[] v)
+    /**
+     * Print the given page rank vector to system out.
+     *
+     * @param v
+     */
+    private static void printPageRankVector(final double[] v)
     {
         for(int i = 0; i < v.length; i += 1)
         {

@@ -9,6 +9,17 @@ import java.util.*;
  */
 public final class PageLinks extends HashMap<Integer, List<Integer>>
 {
+    private int max = 0;
+
+    public int getMax()
+    {
+        return this.max;
+    }
+
+    public List<Integer> getLinksFrom(final int theFromPage)
+    {
+        return this.get(theFromPage);
+    }
 
     /**
      * Add a link from one page to another page given the
@@ -31,6 +42,9 @@ public final class PageLinks extends HashMap<Integer, List<Integer>>
             this.put(theFromIndex, theLinks);
         }
         theLinks.add(Integer.valueOf(theToPage));
+
+        max = Math.max(max, theFromPage);
+        max = Math.max(max, theToPage);
 
         return this;    // allow for call chaining
     }

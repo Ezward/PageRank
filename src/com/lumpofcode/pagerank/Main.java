@@ -1,7 +1,5 @@
 package com.lumpofcode.pagerank;
 
-import java.util.Iterator;
-
 public class Main {
 
     public static void main(String[] args)
@@ -9,17 +7,16 @@ public class Main {
         //
         // initialize the page links
         //
-        final PageLinks thePageLinks = new PageLinks();
 
         // all nodes link to nodes other than themselves
-        thePageLinks
-                .addLink(0, 1)  // A -> B
-                .addLink(0, 2)  // A -> B
-                .addLink(1, 0)  // A -> C
-                .addLink(1, 2)  // A -> C
-                .addLink(2, 0)  // B -> C
-                .addLink(2, 1); // C -> C
-        final double beta = 0.85;
+//        thePageLinks
+//                .addLink(0, 1)  // A -> B
+//                .addLink(0, 2)  // A -> B
+//                .addLink(1, 0)  // A -> C
+//                .addLink(1, 2)  // A -> C
+//                .addLink(2, 0)  // B -> C
+//                .addLink(2, 1); // C -> C
+//        final double beta = 0.85;
 
         // week 1, problem 1
 //        thePageLinks
@@ -47,30 +44,42 @@ public class Main {
 //        final double beta = 1.0;    // no taxation
 
 
+        SparseDoubleMatrix theMatrix = null;
+        final double beta = 0.8;
+
         //
-        // show the page links
+        // we put this part in a try block partially so that when we are done intializing the matrix
+        // from the page links, the page links can be reclaimed by garbage collection.
         //
-        for(Integer thePage : thePageLinks.keySet())
+        try
         {
-            final StringBuilder theBuilder = new StringBuilder();
-            theBuilder
-                    .append(thePage)
-                    .append(" -> ");
-            final Iterator<Integer> theToPages = thePageLinks.get(thePage).iterator();
-            if(theToPages.hasNext())
-            {
-                theBuilder.append(theToPages.next());
-                while(theToPages.hasNext())
-                {
-                    theBuilder.append(", ");
-                    theBuilder.append(theToPages.next());
-                }
-            }
-            System.out.println(theBuilder.toString());
+            final PageLinks thePageLinks = new PageLinks();
+            PageLinkHelper.readPageLinks(thePageLinks, "web-Google.txt", 0, '\t', null);
+
+            theMatrix = new SparseDoubleMatrix(thePageLinks.getMax() + 1, 1024);  // [fromPage][toPage]
+
+
+            //
+            // show the page links
+            //
+            // PageLinkHelper.dumpPageLinks(thePageLinks);
+
+            PageRankCalculator.initializeSparseMatrixFromPageLinks(theMatrix, thePageLinks, thePageLinks.getMax(), beta);
+        }
+        catch(Exception e)
+        {
+            System.out.print(e.toString());
         }
 
-        System.out.println();
 
-        final double[] thePageRankVector = PageRankCalculator.calculatePageRank(thePageLinks, 3, beta, 0.000001, 100);
+        //
+        // NOTE: we cannot simply use the size of the page links map as our dimension,
+        //       since that only include pages with out links.  Our link map may include
+        //       dead end pages that do not have out links.
+        //
+
+//        final double[] thePageRankVector = PageRankCalculator.calculatePageRank(thePageLinks, thePageLinks.getMax() + 1, beta, 0.000001, 100);
+        final double[] thePageRankVector = PageRankCalculator.calculateSparsePageRank(theMatrix, theMatrix.rowCount, beta, 0.000001, 100);
     }
+
 }

@@ -18,6 +18,59 @@ public final class PageRankCalculator
      * @param theMaxIterations
      * @return
      */
+    public static double[] calculateSparsePageRank(final SparseDoubleMatrix theMatrix, final int thePageCount, final double beta, final double epsilon, final int theMaxIterations)
+    {
+        assert(thePageCount > 0);
+        assert((beta >= 0.0) && (beta <= 1.0));
+        assert((epsilon >= 0.0));
+
+        // initialize storage
+        final int dimension = thePageCount;
+        double[] thePageRankVector = new double[dimension];
+        double[] thePageRankEstimate = new double[dimension];
+
+        // printSparseMatrix(theMatrix);
+
+        // initialize the page rank vector to our first estimate; assume equal importance to all pages
+        // (distribute importance evenly among pages)
+        initializePageRankVector(thePageRankVector);
+
+        //
+        // do a power iteration;
+        // 1. calculate a page rank vector estimate
+        // 2. calculate the sum of the differences between the page rank vector and new page rank estimate vector
+        // 3. If the difference is greater than epsilon, make the new page rank estimate the page rank, repeat starting at 1..
+        // 4. we have converged on the page rank vector and we are done.
+        //
+        int theIterations = 0;
+        do
+        {
+            System.out.println("Iteration " + String.valueOf(theIterations));
+            printPageRankVector(thePageRankVector);
+
+            // 1. calculate a page rank vector estimate
+            calculateSparsePageRankVector(theMatrix, thePageRankVector, thePageRankEstimate, beta);
+
+            //
+            // the estimate is the new page rank vector,
+            // we use the old page rank vector as space for a new estimate.
+            //
+            final double[] temp = thePageRankVector;
+            thePageRankVector = thePageRankEstimate;
+            thePageRankEstimate = temp;
+
+            // 2. calculate the sum of the differences between the page rank vector and new page rank estimate vector
+            // 3. If the difference is greather than epsilon, make the new page rank estimate the page rank, repeat starting at 1..
+        }  while((++theIterations < theMaxIterations) && (calculateSumOfDifferences(thePageRankVector, thePageRankEstimate) > epsilon));
+
+        System.out.println("Iteration " + String.valueOf(theIterations));
+        printPageRankVector(thePageRankVector);
+
+        // 4. we have converged on the page rank vector and we are done.
+        return thePageRankVector;
+
+    }
+
     public static double[] calculatePageRank(final PageLinks thePageLinks, final int thePageCount, final double beta, final double epsilon, final int theMaxIterations)
     {
         assert(thePageCount > 0);
@@ -73,6 +126,7 @@ public final class PageRankCalculator
 
     }
 
+
     /**
      * Calcualte a new estimate for the page rank vector.
      *
@@ -112,6 +166,41 @@ public final class PageRankCalculator
                 // NOTE: beta is already applied to the elements of theMatrix, when it is initialized
                 //
                 thePageRankEstimate[j] += theMatrix[i][j] * thePageRankVector[i];
+            }
+        }
+    }
+
+    protected static void calculateSparsePageRankVector(final SparseDoubleMatrix theMatrix, final double[] thePageRankVector, final double[] thePageRankEstimate, final double beta)
+    {
+        assert((beta >= 0.0) && (beta <= 1.0));
+
+        //
+        // v' = B*M*v + (1 - B)e/n
+        //
+        // where
+        // v' = the new estimate for the page rank vector
+        // B = beta; the probability that a random walker will choose and out-link (rather than teleport)
+        // M = the link matrix
+        // v = the page rank vector
+        // e = the unity vector (vector of ones)
+        // n = the dimension (the number of pages)
+        //
+        // NOTE: we have already pre-applied Beta to each matrix element at initialization, so we don't apply it below.
+        //
+        final int n = thePageRankVector.length;
+        final double theTaxation = (1.0 - beta)/n;
+        for(int j = 0; j < n; j += 1)   // choose the row in the matrix (m) and the estimate vector (v')
+        {
+            //
+            // multiply each row by the page rank vector and sum them, then add taxation term
+            //
+            thePageRankEstimate[j] = theTaxation;
+            for(int i = 0; i < n; i += 1)   // choose the column in the matrix (m) and row in the page rank vector (v)
+            {
+                //
+                // NOTE: beta is already applied to the elements of theMatrix, when it is initialized
+                //
+                thePageRankEstimate[j] += theMatrix.get(i, j, 0.0) * thePageRankVector[i];
             }
         }
     }
@@ -175,6 +264,46 @@ public final class PageRankCalculator
         }
     }
 
+    public static void initializeSparseMatrixFromPageLinks(final SparseDoubleMatrix theMatrix, final PageLinks thePageLinks, final int theDimension, final double beta)
+    {
+        final double theTeleportProbability = 1.0 / theDimension;   // needed for pages with no out-links
+
+        for(Integer theFromPage = 0; theFromPage < theDimension; theFromPage += 1)
+        {
+            if((theFromPage < 0) || (theFromPage >= theDimension)) throw new IllegalStateException("thePageLinks contain a from-page index that is out of bounds.");
+
+            final List<Integer> theToPages = thePageLinks.get(theFromPage);
+            if((null != theToPages)  && !theToPages.isEmpty())
+            {
+                //
+                // NOTE: we apply beta to the matrix element here, so we should NOT apply it
+                //       during the power iteration!
+                //
+                final double theLinkProbability = (1.0 / theToPages.size()) * beta;
+                for(Integer theToPage : theToPages)
+                {
+
+                    if((theToPage < 0) || (theToPage >= theDimension))
+                    {
+                        throw new IllegalStateException("thePageLinks contain a to-page index that is out of bounds.");
+                    }
+                    theMatrix.set(theFromPage, theToPage,  theLinkProbability);
+                }
+            }
+            else
+            {
+                //
+                // there are no outlinks from this page, so it is a dead end.
+                // we therefore distribute it's importance evenly to all pages
+                //
+                for(Integer i = 0; i < theDimension; i += 1)
+                {
+                    theMatrix.set(theFromPage, i, theTeleportProbability);
+                }
+            }
+        }
+    }
+
     /**
      * Calculate the sum of the absolute value of the element differences for
      * two vectors of equal dimension.
@@ -217,6 +346,25 @@ public final class PageRankCalculator
             {
                 theBuilder.append(", ");
                 theBuilder.append(String.valueOf(m[i][j]));
+            }
+            theBuilder.append("|\n");
+        }
+
+        System.out.println(theBuilder.toString());
+    }
+
+    private static void printSparseMatrix(final SparseDoubleMatrix m)
+    {
+        final StringBuilder theBuilder = new StringBuilder();
+
+        for(int i = 0; i < m.rowCount; i += 1)
+        {
+            theBuilder.append("|");
+            theBuilder.append(String.valueOf(m.get(i, 0, 0.0)));
+            for (int j = 1; j < m.columnCount; j += 1)
+            {
+                theBuilder.append(", ");
+                theBuilder.append(String.valueOf(m.get(i, j, 0.0)));
             }
             theBuilder.append("|\n");
         }

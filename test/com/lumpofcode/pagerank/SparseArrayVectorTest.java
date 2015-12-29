@@ -1,5 +1,7 @@
 package com.lumpofcode.pagerank;
 
+import com.lumpofcode.collection.IndexIterator;
+import com.lumpofcode.collection.SparseArrayVector;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -82,7 +84,7 @@ public class SparseArrayVectorTest
         theVector.set(10, 10.0);
         theVector.set(100, 100.0);
 
-        final SparseArrayVector<Double>.IndexIterator theIterator = theVector.iterator();
+        final IndexIterator theIterator = theVector.iterator();
         assertNotNull("Iterator should never be null.", theIterator);
 
         assertTrue("Should have next.", theIterator.hasNext());

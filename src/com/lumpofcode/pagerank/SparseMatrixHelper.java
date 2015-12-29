@@ -1,5 +1,6 @@
 package com.lumpofcode.pagerank;
 
+import com.lumpofcode.collection.SparseDoubleMatrix;
 import com.lumpofcode.util.StringUtils;
 
 import java.io.*;

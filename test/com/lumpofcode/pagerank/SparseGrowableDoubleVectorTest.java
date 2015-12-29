@@ -1,5 +1,7 @@
 package com.lumpofcode.pagerank;
 
+import com.lumpofcode.collection.IndexIterator;
+import com.lumpofcode.collection.SparseGrowableDoubleVector;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -70,7 +72,7 @@ public class SparseGrowableDoubleVectorTest
         theVector.set(100, 100.0);
         theVector.set(10000, 10000.0);
 
-        final SparseGrowableDoubleVector.IndexIterator theIterator  = theVector.iterator();
+        final IndexIterator theIterator  = theVector.iterator();
 
         assertNotNull("The iterator should not be null.", theIterator);
 

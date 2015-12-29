@@ -1,13 +1,14 @@
 package com.lumpofcode.collection;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
  * Created by emurphy on 2/26/15.
  */
-public class SparseGrowableVector<K extends Object>
+public class SparseGrowableVector<K extends Object> implements SparseVector<K>
 {
     private final int blockSize;
     public final K zero;
@@ -223,21 +224,27 @@ public class SparseGrowableVector<K extends Object>
         return theBlock;
     }
 
-    public IndexIterator iterator()
+    // TODO: test this iterator against the indices iterator to show values come out in same order
+    public Iterator<K> values()
+    {
+        return new ValueIteratorImpl();
+    }
+
+    public IntegerIterator indices()
     {
         return new IndexIteratorImpl();
     }
 
-    private final class IndexIteratorImpl implements IndexIterator
+    private final class IndexIteratorImpl implements IntegerIterator
     {
         private int indexOfBlock;
-        private IndexIterator indexIterator;
+        private IntegerIterator indexIterator;
         private int overallIndex;
 
         private IndexIteratorImpl()
         {
             this.indexOfBlock = 0;
-            this.indexIterator = blocks.get(0).iterator();
+            this.indexIterator = blocks.get(0).indices();
             this.overallIndex = 0;
         }
 
@@ -272,12 +279,64 @@ public class SparseGrowableVector<K extends Object>
                 this.indexOfBlock += 1;
                 if(this.indexOfBlock < blocks.size())
                 {
-                    this.indexIterator = blocks.get(this.indexOfBlock).iterator();
+                    this.indexIterator = blocks.get(this.indexOfBlock).indices();
                 }
             }
 
             return theNextIndex;
 
+        }
+    }
+
+    private final class ValueIteratorImpl implements Iterator<K>
+    {
+        private int indexOfBlock;
+        private IntegerIterator indexIterator;
+        private int overallIndex;
+
+        private ValueIteratorImpl()
+        {
+            this.indexOfBlock = 0;
+            this.indexIterator = blocks.get(0).indices();
+            this.overallIndex = 0;
+        }
+
+        public boolean hasNext()
+        {
+            if(this.indexOfBlock >= blocks.size()) return false;
+            if(null == this.indexIterator) return false;
+            return this.indexIterator.hasNext();
+        }
+
+        public K next()
+        {
+            if(!hasNext())
+            {
+                throw new NoSuchElementException();
+            }
+
+            //
+            // this is the next value
+            //
+            final int theNextIndex = this.indexIterator.next();
+
+            //
+            // if the current block iterator has a next, we are done.
+            //
+            if(!this.indexIterator.hasNext())
+            {
+                //
+                // start iterating next block if there is one.
+                //
+                this.indexIterator = null;
+                this.indexOfBlock += 1;
+                if(this.indexOfBlock < blocks.size())
+                {
+                    this.indexIterator = blocks.get(this.indexOfBlock).indices();
+                }
+            }
+
+            return blocks.get(this.indexOfBlock).get(theNextIndex);
         }
     }
 

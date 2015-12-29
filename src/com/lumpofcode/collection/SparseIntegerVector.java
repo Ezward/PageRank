@@ -282,12 +282,13 @@ public class SparseIntegerVector
         }
     }
 
-    public IndexIterator iterator()
+    public IntegerIterator values() { return new ValueIteratorImpl(); }
+    public IntegerIterator indices()
     {
         return new IndexIteratorImpl();
     }
 
-    public final class IndexIteratorImpl implements IndexIterator
+    private final class IndexIteratorImpl implements IntegerIterator
     {
         private int index;
 
@@ -306,6 +307,31 @@ public class SparseIntegerVector
             if(hasNext())
             {
                 return indices[this.index++];
+            }
+
+            throw new NoSuchElementException();
+        }
+    }
+
+    private final class ValueIteratorImpl implements IntegerIterator
+    {
+        private int index;
+
+        private ValueIteratorImpl()
+        {
+            this.index = 0;
+        }
+
+        public boolean hasNext()
+        {
+            return (this.index < count);
+        }
+
+        public int next()
+        {
+            if(hasNext())
+            {
+                return values[this.index++];
             }
 
             throw new NoSuchElementException();

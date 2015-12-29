@@ -13,7 +13,7 @@ public class HashMatrix<K extends Object> implements SparseMatrix<K>
     public final int rowCount;
     public final int columnCount;
     private final Map<Integer, HashVector<K>> columns;
-    private static final EmptyIndexIterator emptyIterator = new EmptyIndexIterator();
+    private static final EmptyIntegerIterator emptyIterator = EmptyIntegerIterator.SINGLETON;
 
     public HashMatrix(final int theSquareDimension)
     {
@@ -68,20 +68,20 @@ public class HashMatrix<K extends Object> implements SparseMatrix<K>
     }
 
     @Override
-    public IndexIterator columnIterator()
+    public IntegerIterator columnIndices()
     {
         return new ColumnIteratorImpl();
     }
 
     @Override
-    public IndexIterator rowIterator(int theColumnIndex)
+    public IntegerIterator rowIndices(int theColumnIndex)
     {
         final HashVector<K> theColumn = this.columns.get(theColumnIndex);
 
-        return (null != theColumn) ? theColumn.iterator() : emptyIterator;
+        return (null != theColumn) ? theColumn.indices() : emptyIterator;
     }
 
-    private final class ColumnIteratorImpl implements IndexIterator
+    private final class ColumnIteratorImpl implements IntegerIterator
     {
         //
         // we must put the indices into a TreeSet so the come out in sorted order

@@ -16,7 +16,7 @@ public interface SparseMatrix<K>
      *
      * @return Iterator for the columns indices in the matrix.
      */
-    IndexIterator columnIterator();
+    IntegerIterator columnIndices();
 
     /**
      * return an Iterator for the row indices in the given column.
@@ -24,6 +24,6 @@ public interface SparseMatrix<K>
      * @param theColumnIndex
      * @return Iterator for the row indices for the column at theColumnIndex
      */
-    IndexIterator rowIterator(final int theColumnIndex);
+    IntegerIterator rowIndices(final int theColumnIndex);
 
 }

@@ -1,5 +1,6 @@
 package com.lumpofcode.collection;
 
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
@@ -285,12 +286,21 @@ public class SparseArrayVector<K extends Object> implements SparseVector<K>
         }
     }
 
-    public IndexIterator iterator()
+    // TODO: test this iterator against the indices iterator to show values come out in same order
+    @Override
+    public Iterator<K> values()
+    {
+        return new ValueIteratorImpl();
+    }
+
+    // TODO: write test to guarantee this comes out in order
+    @Override
+    public IntegerIterator indices()
     {
         return new IndexIteratorImpl();
     }
 
-    public final class IndexIteratorImpl implements IndexIterator
+    private final class IndexIteratorImpl implements IntegerIterator
     {
         private int index;
 
@@ -309,6 +319,31 @@ public class SparseArrayVector<K extends Object> implements SparseVector<K>
             if(hasNext())
             {
                 return indices[this.index++];
+            }
+
+            throw new NoSuchElementException();
+        }
+    }
+
+    private final class ValueIteratorImpl implements Iterator<K>
+    {
+        private int index;
+
+        private ValueIteratorImpl()
+        {
+            this.index = 0;
+        }
+
+        public boolean hasNext()
+        {
+            return (this.index < count);
+        }
+
+        public K next()
+        {
+            if(hasNext())
+            {
+                return (K)(values[this.index++]);
             }
 
             throw new NoSuchElementException();

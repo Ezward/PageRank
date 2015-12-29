@@ -229,20 +229,18 @@ public final class PageRankCalculator
 
 
         // choose the row in the matrix (m) and the estimate vector (v')
-        final IndexIterator theRowIterator = theMatrix.iterator();
-        while(theRowIterator.hasNext())
+        //
+        // iterate the columns for the given row
+        //
+        final IntegerIterator theColumnIterator = theMatrix.columnIterator();
+        while(theColumnIterator.hasNext())
         {
-            final int i = theRowIterator.next();
-            final SparseGrowableDoubleVector theRow = theMatrix.row(i);
-
-            //
-            // iterate the columns for the given row
-            //
-            final IndexIterator theColumnIterator = theRow.iterator();
-            while(theColumnIterator.hasNext())
+            final int j = theColumnIterator.next();
+            final IntegerIterator theRowIterator = theMatrix.rowIterator(j);
+            while(theRowIterator.hasNext())
             {
-                final int j = theColumnIterator.next();
-                final double theValue = theRow.get(j, 0.0);
+                final int i = theRowIterator.next();
+                final double theValue = theMatrix.get(i, j, 0.0);
 
                 thePageRankEstimate[i] += theValue * thePageRankVector[j];
             }
@@ -347,7 +345,7 @@ public final class PageRankCalculator
     {
         final double theTeleportProbability = 1.0 / theDimension;   // needed for pages with no out-links
 
-        final IndexIterator theIterator = thePageLinks.iterator();
+        final IntegerIterator theIterator = thePageLinks.indices();
 
         //for(int theFromPage = 0; theFromPage < theDimension; theFromPage += 1)
         while(theIterator.hasNext())

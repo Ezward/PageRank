@@ -1,6 +1,6 @@
 package com.lumpofcode.pagerank;
 
-import com.lumpofcode.collection.IndexIterator;
+import com.lumpofcode.collection.IntegerIterator;
 import com.lumpofcode.collection.IntegerArray;
 import com.lumpofcode.util.StringUtils;
 
@@ -261,7 +261,7 @@ public class PageLinkHelper
 
     public static void dumpPageLinks(final IntegerPageLinks thePageLinks)
     {
-        final IndexIterator theIterator = thePageLinks.iterator();
+        final IntegerIterator theIterator = thePageLinks.indices();
 
         while(theIterator.hasNext())
         {

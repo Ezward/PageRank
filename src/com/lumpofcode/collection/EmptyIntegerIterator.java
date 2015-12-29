@@ -3,8 +3,10 @@ package com.lumpofcode.collection;
 /**
  * Created by emurphy on 12/29/15.
  */
-public class EmptyIndexIterator implements IndexIterator
+public enum EmptyIntegerIterator implements IntegerIterator
 {
+    SINGLETON;
+
     @Override
     public boolean hasNext()
     {

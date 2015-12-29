@@ -1,5 +1,7 @@
 package com.lumpofcode.collection;
 
+import java.util.Iterator;
+
 /**
  * Created by emurphy on 2/25/15.
  */
@@ -44,5 +46,15 @@ public interface SparseVector<K>
      *
      * @return Iterator for the indices.
      */
-    IndexIterator iterator();
+    IntegerIterator indices();
+
+    /**
+     * Iterator for the values.
+     * Note that if the vector is sparse,
+     * only values set values are returned,
+     * missing values are skipped.
+     *
+     * @return Iterator for the sparse values in the vector.
+     */
+    Iterator<K> values();
 }

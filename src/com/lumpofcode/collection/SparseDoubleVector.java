@@ -284,12 +284,13 @@ public final class SparseDoubleVector
         }
     }
 
-    public IndexIterator iterator()
+    public DoubleIterator values() { return new ValueIteratorImpl(); }
+    public IntegerIterator indices()
     {
         return new IndexIteratorImpl();
     }
 
-    public final class IndexIteratorImpl implements IndexIterator
+    public final class IndexIteratorImpl implements IntegerIterator
     {
         private int index;
 
@@ -308,6 +309,31 @@ public final class SparseDoubleVector
             if(hasNext())
             {
                 return indices[this.index++];
+            }
+
+            throw new NoSuchElementException();
+        }
+    }
+
+    public final class ValueIteratorImpl implements DoubleIterator
+    {
+        private int index;
+
+        private ValueIteratorImpl()
+        {
+            this.index = 0;
+        }
+
+        public boolean hasNext()
+        {
+            return (this.index < count);
+        }
+
+        public double next()
+        {
+            if(hasNext())
+            {
+                return values[this.index++];
             }
 
             throw new NoSuchElementException();

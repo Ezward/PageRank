@@ -10,7 +10,8 @@ public class SparseDoubleMatrix
     public final int columnCount;
     private final int rowBlockSize;
     private final int columnBlockSize;
-    private final SparseGrowableVector<SparseGrowableDoubleVector> rows;
+    private final SparseGrowableVector<SparseGrowableDoubleVector> columns;
+    private static final EmptyIntegerIterator emptyIterator = EmptyIntegerIterator.SINGLETON;
 
     public SparseDoubleMatrix(final int theSquareDimension, final int theRowBlockSize, final int theColumnBlockSize)
     {
@@ -29,7 +30,7 @@ public class SparseDoubleMatrix
 
         this.columnBlockSize = theColumnBlockSize;
         this.rowBlockSize = theRowBlockSize;
-        this.rows = new SparseGrowableVector<SparseGrowableDoubleVector>(theRowBlockSize);
+        this.columns = new SparseGrowableVector<SparseGrowableDoubleVector>(theColumnBlockSize);
     }
 
     public void set(final int theRowIndex, final int theColumnIndex, final double theValue)
@@ -37,17 +38,17 @@ public class SparseDoubleMatrix
         if((theRowIndex < 0) || (theRowIndex >= this.rowCount)) throw new IndexOutOfBoundsException();
         if((theColumnIndex < 0) || (theColumnIndex >= this.columnCount)) throw new IndexOutOfBoundsException();
 
-        SparseGrowableDoubleVector theRow = this.rows.get(theRowIndex);
-        if(null != theRow)
+        SparseGrowableDoubleVector theColumn = this.columns.get(theRowIndex);
+        if(null != theColumn)
         {
-            theRow.set(theColumnIndex, theValue);
+            theColumn.set(theRowIndex, theValue);
         }
         else if(zero != theValue)
         {
             // only allocate a new row if we are actually setting a value
-            theRow = new SparseGrowableDoubleVector(this.columnBlockSize);
-            this.rows.set(theRowIndex, theRow);
-            theRow.set(theColumnIndex, theValue);
+            theColumn = new SparseGrowableDoubleVector(this.rowBlockSize);
+            this.columns.set(theColumnIndex, theColumn);
+            theColumn.set(theColumnIndex, theValue);
         }
     }
 
@@ -56,9 +57,9 @@ public class SparseDoubleMatrix
         if((theRowIndex < 0) || (theRowIndex >= this.rowCount)) throw new IndexOutOfBoundsException();
         if((theColumnIndex < 0) || (theColumnIndex >= this.columnCount)) throw new IndexOutOfBoundsException();
 
-        final SparseGrowableDoubleVector theRow = this.rows.get(theRowIndex);
+        final SparseGrowableDoubleVector theColumn = this.columns.get(theColumnIndex);
 
-        return (null != theRow) ? theRow.get(theColumnIndex, theDefault) : theDefault;
+        return (null != theColumn) ? theColumn.get(theRowIndex, theDefault) : theDefault;
     }
 
     public double get(final int theRowIndex, final int theColumnIndex)
@@ -66,14 +67,15 @@ public class SparseDoubleMatrix
         return this.get(theRowIndex, theColumnIndex, zero);
     }
 
-    public SparseGrowableDoubleVector row(final int theRowIndex)
+    public IntegerIterator columnIterator()
     {
-        return this.rows.get(theRowIndex);
+        return this.columns.indices();
     }
 
-
-    public IndexIterator iterator()
+    public IntegerIterator rowIterator(final int theColumnIndex)
     {
-        return this.rows.iterator();
+        final SparseGrowableDoubleVector theColumn = this.columns.get(theColumnIndex);
+
+        return (null != theColumn) ? theColumn.indices() : emptyIterator;
     }
 }

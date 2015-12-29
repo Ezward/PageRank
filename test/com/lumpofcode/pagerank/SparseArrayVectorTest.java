@@ -1,8 +1,10 @@
 package com.lumpofcode.pagerank;
 
-import com.lumpofcode.collection.IndexIterator;
+import com.lumpofcode.collection.IntegerIterator;
 import com.lumpofcode.collection.SparseArrayVector;
 import org.junit.Test;
+
+import java.util.Iterator;
 
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertFalse;
@@ -75,7 +77,7 @@ public class SparseArrayVectorTest
     }
 
     @Test
-    public void testIterator()
+    public void testIndexIterator()
     {
         final SparseArrayVector<Double> theVector = new SparseArrayVector<Double>(3, Double.valueOf(0.0));
 
@@ -84,7 +86,7 @@ public class SparseArrayVectorTest
         theVector.set(10, 10.0);
         theVector.set(100, 100.0);
 
-        final IndexIterator theIterator = theVector.iterator();
+        final IntegerIterator theIterator = theVector.indices();
         assertNotNull("Iterator should never be null.", theIterator);
 
         assertTrue("Should have next.", theIterator.hasNext());
@@ -95,6 +97,32 @@ public class SparseArrayVectorTest
 
         assertTrue("Should have next.", theIterator.hasNext());
         assertTrue("Third element is 1000.", 1000 == theIterator.next());
+
+        assertFalse("Should NOT have next.", theIterator.hasNext());
+
+    }
+
+    @Test
+    public void testValueIterator()
+    {
+        final SparseArrayVector<Double> theVector = new SparseArrayVector<Double>(3, Double.valueOf(0.0));
+
+
+        theVector.set(100, 10.0);
+        theVector.set(10, 1000.0);
+        theVector.set(1000, 100.0);
+
+        final Iterator<Double> theIterator = theVector.values();
+        assertNotNull("Iterator should never be null.", theIterator);
+
+        assertTrue("Should have next.", theIterator.hasNext());
+        assertTrue("First element is 10.", 1000.0 == theIterator.next());
+
+        assertTrue("Should have next.", theIterator.hasNext());
+        assertTrue("Second element is 100.", 10.0 == theIterator.next());
+
+        assertTrue("Should have next.", theIterator.hasNext());
+        assertTrue("Third element is 1000.", 100.0 == theIterator.next());
 
         assertFalse("Should NOT have next.", theIterator.hasNext());
 

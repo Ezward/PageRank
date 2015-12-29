@@ -1,6 +1,6 @@
 package com.lumpofcode.pagerank;
 
-import com.lumpofcode.collection.IndexIterator;
+import com.lumpofcode.collection.IntegerIterator;
 import com.lumpofcode.collection.IntegerArray;
 import org.junit.Test;
 
@@ -25,7 +25,7 @@ public class IntegerPageLinksTest
         assertTrue("thePageLinks max should be 1.", 1 == thePageLinks.getMax());
         assertTrue("thePageLinks should NOT have a fromPage of 1.", null == thePageLinks.getLinksFrom(1));
 
-        IndexIterator theFromPageIterator = thePageLinks.iterator();
+        IntegerIterator theFromPageIterator = thePageLinks.indices();
         assertTrue("theFromPageIterator.hasNext() should be true", theFromPageIterator.hasNext());
         assertTrue("theFromPageIterator.next() should return page 0", 0 == theFromPageIterator.next());
         assertFalse("theFromPageIterator.hasNext() should return false", theFromPageIterator.hasNext());
@@ -35,7 +35,7 @@ public class IntegerPageLinksTest
         assertTrue("thePageLinks should have the from page 1", null != thePageLinks.getLinksFrom(1));
         assertTrue("thePageLinks max should be 2.", 2 == thePageLinks.getMax());
 
-        theFromPageIterator = thePageLinks.iterator();
+        theFromPageIterator = thePageLinks.indices();
         assertTrue("theFromPageIterator.hasNext() should be true", theFromPageIterator.hasNext());
         assertTrue("theFromPageIterator.next() should return page 0", 0 == theFromPageIterator.next());
         assertTrue("theFromPageIterator.hasNext() should be true", theFromPageIterator.hasNext());

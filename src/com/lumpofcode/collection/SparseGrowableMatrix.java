@@ -9,7 +9,7 @@ public class SparseGrowableMatrix<K extends Object> implements SparseMatrix<K>
     public final int columnCount;
     private final int blockSize;
     private final SparseGrowableVector<SparseGrowableVector<K>> columns;
-    private static final EmptyIndexIterator emptyIterator = new EmptyIndexIterator();
+    private static final EmptyIntegerIterator emptyIterator = EmptyIntegerIterator.SINGLETON;
 
     public SparseGrowableMatrix(final int theSquareDimension, final int theBlockSize)
     {
@@ -70,7 +70,7 @@ public class SparseGrowableMatrix<K extends Object> implements SparseMatrix<K>
      *
      * @return Iterator for the columns indices in the matrix.
      */
-    public IndexIterator columnIterator() { return this.columns.iterator(); }
+    public IntegerIterator columnIndices() { return this.columns.indices(); }
 
     /**
      * return an Iterator for the row indices in the given column.
@@ -78,11 +78,11 @@ public class SparseGrowableMatrix<K extends Object> implements SparseMatrix<K>
      * @param theColumnIndex
      * @return Iterator for the row indices for the column at theColumnIndex
      */
-    public IndexIterator rowIterator(final int theColumnIndex)
+    public IntegerIterator rowIndices(final int theColumnIndex)
     {
         final SparseGrowableVector<K> theColumn = this.columns.get(theColumnIndex);
 
-        return (null != theColumn) ? theColumn.iterator() : emptyIterator;
+        return (null != theColumn) ? theColumn.indices() : emptyIterator;
     }
 
 }

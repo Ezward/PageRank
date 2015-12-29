@@ -200,21 +200,21 @@ public class SparseGrowableDoubleVector
         return theBlock;
     }
 
-    public IndexIterator iterator()
+    public IntegerIterator indices()
     {
         return new IndexIteratorImpl();
     }
 
-    private final class IndexIteratorImpl implements IndexIterator
+    private final class IndexIteratorImpl implements IntegerIterator
     {
         private int indexOfBlock;
-        private IndexIterator indexIterator;
+        private IntegerIterator indexIterator;
         private int overallIndex;
 
         private IndexIteratorImpl()
         {
             this.indexOfBlock = 0;
-            this.indexIterator = blocks.get(0).iterator();
+            this.indexIterator = blocks.get(0).indices();
             this.overallIndex = 0;
         }
 
@@ -249,12 +249,11 @@ public class SparseGrowableDoubleVector
                 this.indexOfBlock += 1;
                 if(this.indexOfBlock < blocks.size())
                 {
-                    this.indexIterator = blocks.get(this.indexOfBlock).iterator();
+                    this.indexIterator = blocks.get(this.indexOfBlock).indices();
                 }
             }
 
             return theNextIndex;
-
         }
     }
 }

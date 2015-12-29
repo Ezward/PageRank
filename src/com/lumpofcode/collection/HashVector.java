@@ -46,12 +46,18 @@ public class HashVector<K extends Object> implements SparseVector<K>
         return this.get(theIndex, null);
     }
 
-    public IndexIterator iterator()
+    // TODO: test this iterator against the indices iterator to show values come out in same order
+    @Override
+    public Iterator<K> values() { return new ValueIteratorImpl(); }
+
+    // TODO: write test to guarantee this comes out in order
+    @Override
+    public IntegerIterator indices()
     {
         return new IndexIteratorImpl();
     }
 
-    private final class IndexIteratorImpl implements IndexIterator
+    private final class IndexIteratorImpl implements IntegerIterator
     {
         //
         // we must put the indices into a TreeSet so the come out in sorted order
@@ -66,6 +72,24 @@ public class HashVector<K extends Object> implements SparseVector<K>
         public int next()
         {
             return thisIterator.next().intValue();
+        }
+    }
+
+    private final class ValueIteratorImpl implements Iterator<K>
+    {
+        //
+        // we must put the indices into a TreeSet so the come out in sorted order
+        //
+        private Iterator<Integer> thisIterator = new TreeSet<Integer>(vectorMap.keySet()).iterator();
+
+        public boolean hasNext()
+        {
+            return thisIterator.hasNext();
+        }
+
+        public K next()
+        {
+            return vectorMap.get(thisIterator.next());
         }
     }
 

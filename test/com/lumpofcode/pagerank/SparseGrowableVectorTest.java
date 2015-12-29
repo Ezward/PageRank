@@ -1,6 +1,6 @@
 package com.lumpofcode.pagerank;
 
-import com.lumpofcode.collection.IndexIterator;
+import com.lumpofcode.collection.IntegerIterator;
 import com.lumpofcode.collection.SparseGrowableVector;
 import org.junit.Test;
 
@@ -73,7 +73,7 @@ public class SparseGrowableVectorTest
         theVector.set(100, 100.0);
         theVector.set(10000, 10000.0);
 
-        IndexIterator theIterator  = theVector.iterator();
+        IntegerIterator theIterator  = theVector.indices();
 
         assertNotNull("The iterator should not be null.", theIterator);
 
@@ -104,7 +104,7 @@ public class SparseGrowableVectorTest
             theVector.set(i * 2, i * 2 + 1.0);        // generates 1,3,5..9999 at 0,2,4..9998
             theVector.set(10000 - (i * 2 + 1), 10000.0 - i * 2);  // generates 10000,9998,9996..2 at 9999,9997,9995..1
         }
-        theIterator  = theVector.iterator();
+        theIterator  = theVector.indices();
         for(int i = 0; i < 10000; i += 1)
         {
             System.out.println("$i = $value".replace("$i", String.valueOf(i)).replace("$value", String.valueOf(theVector.get(i))));
